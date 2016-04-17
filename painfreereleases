@@ -1,0 +1,224 @@
+#!/usr/bin/env php
+<?php
+
+// set to run a long time, just in case.
+set_time_limit(600);
+
+// installed via composer?
+if (file_exists(__DIR__.'/../../autoload.php')) {
+    require_once __DIR__.'/../../autoload.php';
+} else {
+    require_once __DIR__.'/vendor/autoload.php';
+}
+
+// ensure we aren't running on a very old php.
+if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
+    fwrite(STDERR, "PainfreeReleases requires PHP 5.4.0\n");
+    exit(1);
+}
+
+/**
+ * @todo refactor after storage decision - should move into settings or something similar
+ */
+$sortOrder = ['FEATURE', 'NEW', 'MAJOR', 'MINOR', 'FIX', 'BUGFIX', 'DOC', 'OTHER'];
+
+// Yay CLImate! :)
+$climate = new League\CLImate\CLImate;
+
+// saying "Hi"
+$climate->out("\n<background_blue>PainfreeReleases</background_blue>\n");
+$climate->greenInline('PainfreeReleases will update your changelogs, ');
+$climate->comment('if required.');
+
+// @todo - do it proper with validation and exception handling
+$scope = 'init';
+if (isset($argv[1]) && $argv[1] != 'init') {
+    // quick and dirty just stripping out what we don't want from the parameter.
+    $scope = preg_replace('/[^0-9\.]/', '', $argv[1]);
+}
+
+/**
+ * @feature: make the filename adjustable / self-detecting ?
+ */
+$filename = 'CHANGELOG.md';
+
+/** load the existing changelog **/
+$file = new \ChangeLog\IO\File(['file' => $filename]);
+
+// prep the change log
+$cl = new \ChangeLog\ChangeLog;
+
+/**
+ * @feature allow to register a custom renderer and parser - this would allow any format.
+ */
+
+// We don't know for sure the file exists as we start this.
+if (file_exists($filename) && trim(file_get_contents($filename)) != '') {
+    $cl->setInput($file);
+    $cl->setParser(new \ChangeLog\Parser\KeepAChangeLog());
+
+    // parse the information from the git log
+    $log = $cl->parse();
+} else {
+    $log = new \ChangeLog\Log;
+}
+
+$cl->setOutput($file);
+$cl->setRenderer(new \ChangeLog\Renderer\KeepAChangeLog());
+
+/**
+ * Process the information we have gained from parsing the existing changelog.
+ */
+
+/**
+ * @feature guess (+ maybe suggest?) the project name based on the parent folder or composer.json or package.json
+ */
+// Ask for the project name here and write it directly to the release log - no other storage place required.
+if ($log->getTitle() == '') {
+    $input = $climate->input("\nWhat is the name of this project?\n");
+
+    /**
+     * @todo validate the inputs!
+     */
+    $log->setTitle($input->prompt());
+}
+
+if ($log->getDescription() == '') {
+    $input = $climate->input("\nWhat is the description of this project?\n");
+
+    /**
+     * @todo validate the inputs!
+     */
+    $log->setDescription($input->prompt());
+}
+
+
+// get the information from git.
+/**
+ * @todo find a smarter way to get information out of git. This is sad :(
+ *
+ * Does anyone know a git command to read the complete tree including hash, date, author, message and possible refs?
+ */
+
+/**
+ * Reads and prepares the commits for later processing.
+ *
+ * Basically runs "git log --pretty=oneline" on the repo.
+ */
+$commits = function () {
+    exec('git log --pretty=oneline', $output);
+
+    return array_reverse(array_map(function ($element) { return [
+        'hash' => explode(' ', $element, 2)[0],
+        'message' => explode(' ', $element, 2)[1]
+    ];}, $output));
+};
+
+/**
+ * Reads and prepares the tags for later processing.
+ *
+ * Basically runs "git show-ref --tags" on the repo and parses the output.
+ */
+$tags = function () {
+    exec('git show-ref --tags', $output);
+
+    return array_map(function ($element) { return [
+        'hash' => explode(' refs/tags/', $element, 2)[0],
+        'tag' => explode(' refs/tags/', $element, 2)[1],
+    ];}, $output);
+};
+
+
+// turn it back into arrays
+/**
+ * @todo remove this step by refactoring in further down
+ */
+$commits = $commits();
+$tags = $tags();
+
+// running through the commit and collect the data (hash and commit msg for later usage)
+$release = new \ChangeLog\Release('HEAD');
+
+// we abusing setAllChanges to implement a built-in sort order using the order of keys
+$release->setAllChanges(array_combine($sortOrder, array_fill(0, count($sortOrder), null)));
+
+foreach ($commits as $commit) {
+    // parse the section form the commit message
+    $section = strtoupper(trim(explode(':', $commit['message'])[0]));
+
+    // cleaning up the allowed prefixes for commit messages
+    if (!in_array($section, $sortOrder)) {
+        $section = 'OTHER';
+    }
+
+    // add the information to the array structure
+     $release->addChange($section, $commit['message']);
+
+    // identify which commits are relevant for this new tag.
+    foreach ($tags as $tag) {
+        if ($tag['hash'] == $commit['hash']) {
+            // add the release, if we are doing an initialization step or we found a tag we want to document
+            if ($scope == 'init' || $scope == $tag['tag']) {
+                // push this release out
+                $release->setName($tag['tag']);
+                $log->addRelease($release);
+
+                /**
+                 * @todo mark this release with the time of the last commit in the release
+                 */
+                // $dt = new \DateTime();
+                // $release->setDate($dt);
+
+                // add start a new release
+                $release = new \ChangeLog\Release();
+            }
+
+            // reset the changes "recorded", if we found a tag. Because this means we aren't at the HEAD yet...
+            $release->setAllChanges(array_combine($sortOrder, array_fill(0, count($sortOrder), null)));
+        }
+    }
+}
+
+// here the actual adding of the new release happens.
+if ($scope != 'init') {
+    $release->setName($scope);
+    $release->setDate($dt = new \DateTime());
+    $log->addRelease($release);
+}
+
+// write all the information we have collected into the actual CHANGELOG.
+$cl->write($log);
+
+/**
+ * The commands below should be removed while refactoring. This should be replaced with a proper
+ * implementation which doesn't write those useless stuff into the file. I'll come back to this later,
+ * for now, these quick and dirty work around will do their job to get this out of the door.
+ */
+// removing stupid, unneeded headings and bullet-points. basically: "/[#\- ]*/" => ""
+file_put_contents($filename, preg_replace("/[#\- ]*\n/", "\n", file_get_contents($filename)));
+
+// clean up the outprinted file quickly. basically: "/\n+/" => "\n\n"
+file_put_contents($filename, implode("\n\n", array_unique(preg_split("/\n+/", file_get_contents($filename)))));
+
+// moving heading of release one line down
+file_put_contents($filename, preg_replace("/(## [\d\.]+)/", "\n$1", file_get_contents($filename)));
+
+// After we have done a lot to get the data from "git log"-format into the format required by stevewest/changelog
+// we do a few things to increase the usability of this tool (messages and git maintainence)
+if ($scope == 'init') {
+    $climate->green("PainfreeReleases has created your {$filename}.")
+        ->yellow('Please verify you are happy with the result before commiting it.');
+} else {
+    // repo maintainance: commit the CHANGELOG.md-file and add the actual tag
+    exec("git add {$filename}; git commit -nm 'DOC: Adding CHANGELOG for {$scope}'; git tag {$scope}");
+    $climate->greenInline("Your {$filename} has been updated. ")
+        ->yellow('Please check it before pushing the tag.');
+
+    /**
+     * @feature: allow to modify the added release notes - similar behaviour to a pre-populated merge commit message
+     */
+}
+
+$climate->out("\n<background_blue>Finished :)</background_blue>\n");
+
+exit(0);
