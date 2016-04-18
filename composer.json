@@ -15,6 +15,5 @@
         "psr-0": {
             "": "src/"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
