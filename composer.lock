@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7463191b7b3af125c3e026c966cd1160",
-    "content-hash": "390b0b9115c64382fed0def93e0f24bc",
+    "hash": "95b478943430cf609d05e2388f7d6023",
+    "content-hash": "12cd49d501100c645d79b1216f53b29a",
     "packages": [
         {
             "name": "league/climate",
@@ -1164,7 +1164,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "naneau/semver": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

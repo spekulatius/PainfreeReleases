@@ -6,7 +6,8 @@
     "require": {
         "php": ">=5.4.0",
         "league/climate": "^3.2",
-        "stevewest/changelog": "^1.1"
+        "stevewest/changelog": "^1.1",
+        "naneau/semver": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8"
