@@ -60,7 +60,7 @@ Installation: How do I get this?
     curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer;
 
     # install the package as a global dependency and symlink it.
-    composer install -g spekulatius/painfreereleases;
+    composer global require spekulatius/painfreereleases;
     sudo ln -s ~/.composer/vendor/spekulatius/painfreereleases/painfreereleases /usr/local/bin/painfreereleases;
 
     # run the initial steps
