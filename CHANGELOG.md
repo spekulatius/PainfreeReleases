@@ -5,21 +5,13 @@ This is the CHANGELOG of the project PainfreeReleases itself. It can be used as 
 
 ## 0.1.3 - 2016-05-16
 
-### MINOR
-
-- MINOR: removing minimum-stability
-
-- MINOR: validate composer.json on travis :)
-
 ### FIX
 
 - FIX: addressing the composer issues
 
 ### OTHER
 
-- Merge branch 'master' into test
-
-- Running of composer update
+- Merge branch 'master' of github.com:spekulatius/PainfreeReleases
 
 
 ## 0.1.2
