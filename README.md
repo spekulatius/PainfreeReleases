@@ -32,7 +32,7 @@ to generate a new release in the CHANGELOG.md-file. In detail it does the follow
 
 * Generates you a [CHANGELOG.md-file](https://github.com/spekulatius/PainfreeReleases/blob/master/CHANGELOG.md) out of your git tags and commits.
 * commits it,
-* and does your tag.
+* and tags your release.
 
 
 Requirements: What do you need?
@@ -60,7 +60,10 @@ Installation: How do I get this?
     curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer;
 
     # install the package as a global dependency and symlink it.
-    composer global require spekulatius/painfreereleases;
+    mkdir -p ~/.composer/spekulatius/painfreereleases;
+    git clone git@github.com:spekulatius/PainfreeReleases.git ~/.composer/spekulatius/painfreereleases
+    cd ~/.composer/spekulatius/painfreereleases
+    composer install
     sudo ln -s ~/.composer/vendor/spekulatius/painfreereleases/painfreereleases /usr/local/bin/painfreereleases;
 
     # run the initial steps
