@@ -32,7 +32,7 @@ to generate a new release in the CHANGELOG.md-file. In detail it does the follow
 
 * Generates you a [CHANGELOG.md-file](https://github.com/spekulatius/PainfreeReleases/blob/master/CHANGELOG.md) out of your git tags and commits.
 * commits it,
-* and does your tag.
+* and tags your release.
 
 
 Requirements: What do you need?
