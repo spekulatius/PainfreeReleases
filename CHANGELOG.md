@@ -3,6 +3,34 @@
 This is the CHANGELOG of the project PainfreeReleases itself. It can be used as an example of output from PainfreeReleases.
 
 
+## 0.1.3 - 2016-05-16
+
+### MINOR
+
+- MINOR: removing minimum-stability
+
+- MINOR: validate composer.json on travis :)
+
+### FIX
+
+- FIX: addressing the composer issues
+
+### OTHER
+
+- Merge branch 'master' into test
+
+- Running of composer update
+
+
+## 0.1.2
+
+- MINOR: adjusting composer files (#7)
+
+- Update install command (#6)
+
+- adjusting composer.json (#8)
+
+
 ## 0.1.1 - 2016-04-17
 
 ### DOC
@@ -11,8 +39,6 @@ This is the CHANGELOG of the project PainfreeReleases itself. It can be used as 
 
 
 ## 0.1.0
-
-### OTHER
 
 - Initial commit
 
