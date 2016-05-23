@@ -64,7 +64,8 @@ Installation: How do I get this?
     git clone git@github.com:spekulatius/PainfreeReleases.git ~/.composer/spekulatius/painfreereleases
     cd ~/.composer/spekulatius/painfreereleases
     composer install
-    sudo ln -s ~/.composer/vendor/spekulatius/painfreereleases/painfreereleases /usr/local/bin/painfreereleases;
+    sudo chmod +x ~/.composer/spekulatius/painfreereleases/painfreereleases;
+    sudo ln -s ~/.composer/spekulatius/painfreereleases/painfreereleases /usr/local/bin/painfreereleases;
 
     # run the initial steps
     painfreereleases init;
