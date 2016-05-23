@@ -20,7 +20,7 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50400) {
 /**
  * @todo refactor after storage decision - should move into settings or something similar
  */
-$sortOrder = ['FEATURE', 'NEW', 'MAJOR', 'MINOR', 'FIX', 'BUGFIX', 'DOC', 'OTHER'];
+$sortOrder = ['FEATURE', 'MAJOR', 'MINOR', 'FIX', 'DOC', 'OTHER'];
 
 // Yay CLImate! :)
 $climate = new League\CLImate\CLImate;
