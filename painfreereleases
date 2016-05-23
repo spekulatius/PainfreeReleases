@@ -122,10 +122,14 @@ $commits = function () {
 $tags = function () {
     exec('git show-ref --tags', $output);
 
-    return array_map(function ($element) { return [
+    return array_filter(array_map(function ($element) { return [
+        // parse out some of the string
         'hash' => explode(' refs/tags/', $element, 2)[0],
         'tag' => explode(' refs/tags/', $element, 2)[1],
-    ];}, $output);
+    ]; }, $output), function($release) {
+        // filter out any non simple tags. Only 0.1.2 should be left after this stage
+        return preg_match('/^\d+\.\d+\.\d+$/', $release['tag']);
+    });
 };
 
 
