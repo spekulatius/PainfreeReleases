@@ -1,7 +1,7 @@
 {
     "name": "spekulatius/painfreereleases",
     "description": "Helps you to maintain a CHANGELOG absolute painfree.",
-    "homepage": "https://github.com/spekulatius/painfreereleases",
+    "homepage": "https://peterthaleikis.com",
     "license": "BSD-3-Clause",
     "require": {
         "php": ">=5.4.0",
